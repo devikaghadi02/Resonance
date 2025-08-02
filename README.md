@@ -52,8 +52,4 @@ A modern, responsive web application that transforms audio into stunning visual 
 
 
 
-## 🔐 Security Considerations
 
-- **HTTPS Required**: Web Audio API requires secure context
-- **File Size Limits**: 50MB maximum to prevent abuse
-- **CORS Headers**: Require

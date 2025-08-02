@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Resonance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 198, 121, 0.3) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        
+        .floating-orb {
+            position: fixed;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.2));
+            filter: blur(40px);
+            animation: float-orb 20s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        .floating-orb:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-orb:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 10%;
+            animation-delay: -5s;
+        }
+
+        .floating-orb:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        
+        .team-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .team-card:hover::before {
+            left: 100%;
+        }
+
+        .team-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .team-card-alt {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+            border-color: rgba(240, 147, 251, 0.3);
+        }
+
+        .team-card-alt:hover {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+            border-color: rgba(240, 147, 251, 0.6);
+            box-shadow: 0 30px 60px rgba(240, 147, 251, 0.2);
+        }
+
+        
+        .team-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .team-card-alt .team-content {
+            flex-direction: row-reverse;
+        }
+
+        .team-photo-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .team-photo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .team-photo-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .team-card:hover .team-photo-container::before {
+            opacity: 1;
+        }
+
+        .team-card:hover .team-photo {
+            transform: scale(1.1) rotate(5deg);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .team-info {
+            flex: 1;
+            position: relative;
+        }
+
+        .team-card-alt .team-info {
+            text-align: right;
+        }
+
+        .team-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+        }
+
+        .team-name::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.4s ease;
+            border-radius: 2px;
+        }
+
+        .team-name:hover::after {
+            width: 100%;
+        }
+
+        .team-role {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #f093fb;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .team-role:hover {
+            color: #ffffff;
+            transform: scale(1.05);
+            text-shadow: 0 0 15px rgba(240, 147, 251, 0.6);
+        }
+
+        .team-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .team-description:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        
+        .particle-burst {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-burst 2s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes particle-burst {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translate(var(--tx), var(--ty));
+            }
+        }
+
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #1f2937;
+            transition: all 0.3s ease;
+            position: relative;
+            display: block;
+            padding: 1rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+            transform: translateX(10px);
+        }
+
+        .nav-item.show {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+
+        
+        .mission-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mission-card:hover::before {
+            opacity: 1;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        
+        @media (max-width: 768px) {
+            .team-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .team-card-alt .team-content {
+                flex-direction: column;
+            }
+
+            .team-info {
+                text-align: center;
+            }
+
+            .team-card-alt .team-info {
+                text-align: center;
+            }
+
+            .team-name {
+                font-size: 2rem;
+            }
+
+            .nav-link {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="animated-bg"></div>
+    
+    
+    <div class="floating-orb"></div>
+    <div class="floating-orb"></div>
+    <div class="floating-orb"></div>
+    
+    
+    <nav class="fixed top-0 w-full z-50 glass-effect">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <div class="w-4 h-4 bg-white rounded-sm"></div>
+                    </div>
+                    <h1 class="text-xl font-semibold">
+                        <a href="index.html" class="gradient-text hover:opacity-80 transition-opacity">Resonance</a>
+                    </h1>
+                </div>
+
+                
+                <div class="ml-auto flex items-center space-x-4">
+                    <a href="index.html#pricing" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-full text-sm font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Get Started
+                    </a>
+
+                    <button id="nav-toggle" class="glass-effect rounded-lg p-2 w-10 h-10 flex flex-col justify-center items-center space-y-1 hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 opacity-0 invisible transition-all duration-300"></div>
+
+    
+    <div id="nav-menu" class="fixed top-0 right-0 w-[500px] h-full bg-gradient-to-b from-neutral-100 to-neutral-300 z-50 transform translate-x-full transition-transform duration-400 ease-out">
+        <div class="p-6">
+            <button id="nav-close" class="absolute top-4 right-4 glass-effect rounded px-3 py-1 text-sm hover:bg-black hover:bg-opacity-20 transition-all duration-300 text-black">
+                CLOSE 
+            </button>
+
+            <ul class="mt-16 space-y-6">
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="about.html" class="nav-link active">About Us</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="index.html#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="index.html#visualizer" class="nav-link">Studio</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="index.html#features" class="nav-link">Features</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="index.html#team" class="nav-link">Artists</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="index.html#pricing" class="nav-link">Pricing</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    
+    <section class="min-h-screen pt-20">
+        <div class="container mx-auto px-6 py-20">
+            
+            <div class="text-center mb-24">
+                <h2 class="text-6xl md:text-7xl font-light mb-8 scroll-reveal gradient-text">Meet Our Team</h2>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto scroll-reveal leading-relaxed">
+                    The creative minds and technical wizards behind Resonance's revolutionary audio visualization platform
+                </p>
+            </div>
+
+            
+            <div class="max-w-5xl mx-auto space-y-8">
+                
+                
+                <div class="team-card scroll-reveal" data-member="devika">
+                    <div class="team-content">
+                        <div class="team-photo-container">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='140' height='140' rx='70' fill='url(%23grad1)'/%3E%3Ctext x='70' y='80' text-anchor='middle' fill='white' font-size='32' font-weight='bold' font-family='Inter'%3EDG%3C/text%3E%3C/svg%3E" alt="Devika Ghadi" class="team-photo">
+                        </div>
+                        <div class="team-info">
+                            <h3 class="team-name">Devika Ghadi</h3>
+                            <p class="team-role">Creative Director & Co-Founder</p>
+                            <p class="team-description">
+                                A visionary creative director who transforms complex ideas into stunning visual experiences. Devika brings fresh perspectives through her love of reading and unique sense of humor with brainrot memes. Her creative vision drives the artistic direction of Resonance, ensuring every visualization tells a compelling story.
+                            </p>
+                            <div class="flex space-x-4 mt-6">
+                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">🎨</span>
+                                </div>
+                                <div class="w-12 h-12 bg-gradient-to-r from-pink-500 to-red-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">📚</span>
+                                </div>
+                                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">😂</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="team-card team-card-alt scroll-reveal" data-member="tisha">
+                    <div class="team-content">
+                        <div class="team-photo-container">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cdefs%3E%3ClinearGradient id='grad2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f093fb;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23f5576c;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='140' height='140' rx='70' fill='url(%23grad2)'/%3E%3Ctext x='70' y='80' text-anchor='middle' fill='white' font-size='32' font-weight='bold' font-family='Inter'%3ETG%3C/text%3E%3C/svg%3E" alt="Tisha Gogia" class="team-photo">
+                        </div>
+                        <div class="team-info">
+                            <h3 class="team-name">Tisha Gogia</h3>
+                            <p class="team-role">Lead Developer & Co-Founder</p>
+                            <p class="team-description">
+                                A brilliant technical architect who bridges creativity and technology. Tisha's sociable nature and passion for discussing diverse topics brings collaborative energy to the team. Her expertise in audio processing and real-time graphics makes the impossible possible, while her shared love of brainrot culture keeps the team connected and inspired.
+                            </p>
+                            <div class="flex space-x-4 mt-6 justify-end">
+                                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">💻</span>
+                                </div>
+                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">🗣️</span>
+                                </div>
+                                <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white text-sm font-semibold">🤝</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="max-w-4xl mx-auto mt-24">
+                <div class="mission-card scroll-reveal">
+                    <div class="text-center">
+                        <h3 class="text-4xl font-light mb-8 gradient-text">Our Mission</h3>
+                        <p class="text-xl text-gray-300 leading-relaxed mb-8">
+                            At Resonance, we believe that every sound deserves to be seen. Our mission is to democratize audio visualization, making professional-grade tools accessible to creators worldwide. We're building bridges between audio and visual art, transforming how people experience and share music.
+                        </p>
+                        <div class="grid md:grid-cols-3 gap-8 mt-12">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl">🎵</span>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">Innovation</h4>
+                                <p class="text-gray-400">Pushing the boundaries of what's possible in real-time audio visualization</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl">🤝</span>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">Community</h4>
+                                <p class="text-gray-400">Building a global community of creators and visual artists</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl">✨</span>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">Excellence</h4>
+                                <p class="text-gray-400">Delivering professional-grade quality with intuitive user experience</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('revealed');
+                        }, index * 200);
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+
+            
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            const navClose = document.getElementById('nav-close');
+            const overlay = document.getElementById('overlay');
+            const hamburgerBars = document.querySelectorAll('.hamburger');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            function openMenu() {
+                overlay.classList.remove('opacity-0', 'invisible');
+                overlay.classList.add('opacity-100', 'visible');
+                navMenu.classList.remove('translate-x-full');
+                navMenu.classList.add('translate-x-0');
+                
+                hamburgerBars[0].style.transform = 'rotate(45deg) translate(3px, 3px)';
+                hamburgerBars[1].style.opacity = '0';
+                hamburgerBars[2].style.transform = 'rotate(-45deg) translate(3px, -3px)';
+                
+                setTimeout(() => {
+                    navItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('show');
+                        }, index * 100);
+                    });
+                }, 200);
+                
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMenu() {
+                overlay.classList.remove('opacity-100', 'visible');
+                overlay.classList.add('opacity-0', 'invisible');
+                navMenu.classList.remove('translate-x-0');
+                navMenu.classList.add('translate-x-full');
+                
+                hamburgerBars[0].style.transform = 'rotate(0deg) translate(0px, 0px)';
+                hamburgerBars[1].style.opacity = '1';
+                hamburgerBars[2].style.transform = 'rotate(0deg) translate(0px, 0px)';
+                
+                navItems.forEach(item => {
+                    item.classList.remove('show');
+                });
+                
+                document.body.style.overflow = 'auto';
+            }
+            
+            navToggle.addEventListener('click', openMenu);
+            navClose.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+            
+            document.querySelectorAll('#nav-menu a').forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+            
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && !navMenu.classList.contains('translate-x-full')) {
+                    closeMenu();
+                }
+            });
+
+            
+            document.querySelectorAll('.team-card').forEach((card, index) => {
+                card.addEventListener('mouseenter', (e) => {
+                    createParticleBurst(e.currentTarget);
+                });
+                
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 20;
+                    const rotateY = (centerX - x) / 20;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-15px) scale(1.02)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)';
+                });
+            });
+
+            
+            function createParticleBurst(element) {
+                const rect = element.getBoundingClientRect();
+                const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+                
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle-burst';
+                        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        
+                        const side = Math.floor(Math.random() * 4);
+                        let startX, startY;
+                        
+                        if (side === 0) { 
+                            startX = rect.left + Math.random() * rect.width;
+                            startY = rect.top;
+                        } else if (side === 1) { 
+                            startX = rect.right;
+                            startY = rect.top + Math.random() * rect.height;
+                        } else if (side === 2) { 
+                            startX = rect.left + Math.random() * rect.width;
+                            startY = rect.bottom;
+                        } else { 
+                            startX = rect.left;
+                            startY = rect.top + Math.random() * rect.height;
+                        }
+                        
+                        particle.style.left = startX + 'px';
+                        particle.style.top = startY + 'px';
+                        
+                        
+                        const tx = (Math.random() - 0.5) * 200;
+                        const ty = (Math.random() - 0.5) * 200;
+                        particle.style.setProperty('--tx', tx + 'px');
+                        particle.style.setProperty('--ty', ty + 'px');
+                        
+                        document.body.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 2000);
+                    }, i * 50);
+                }
+            }
+
+            
+            document.querySelectorAll('.team-name, .team-role').forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    createSparkles(element);
+                });
+            });
+
+            function createSparkles(element) {
+                const rect = element.getBoundingClientRect();
+                
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.style.position = 'fixed';
+                        sparkle.style.width = '4px';
+                        sparkle.style.height = '4px';
+                        sparkle.style.background = '#ffd700';
+                        sparkle.style.borderRadius = '50%';
+                        sparkle.style.pointerEvents = 'none';
+                        sparkle.style.zIndex = '1000';
+                        sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                        sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                        sparkle.style.animation = 'particle-burst 1s ease-out forwards';
+                        sparkle.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
+                        sparkle.style.setProperty('--ty', (Math.random() - 0.5) * 100 + 'px');
+                        
+                        document.body.appendChild(sparkle);
+                        
+                        setTimeout(() => sparkle.remove(), 1000);
+                    }, i * 100);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

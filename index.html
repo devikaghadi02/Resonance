@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonance - Professional Music Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 198, 121, 0.3) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+       
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: particle-float 15s infinite linear;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        
+        .magic-hover {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .magic-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .magic-hover:hover::before {
+            left: 100%;
+        }
+
+        .magic-hover:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+       
+        .ripple {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        
+        .btn-gradient {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        
+        .team-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .team-card:hover::after {
+            opacity: 1;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover .avatar {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        
+        #visualizer-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        #visualizer-canvas.active {
+            opacity: 0.7;
+        }
+
+        
+        .upload-zone {
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.2), transparent);
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+            border-radius: 50%;
+        }
+
+        .upload-zone:hover {
+            border-color: rgba(102, 126, 234, 0.8);
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-zone:hover::before {
+            width: 300%;
+            height: 300%;
+        }
+
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+            transform: scale(1.05);
+        }
+
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 3rem;
+            color: #1f2937;
+            transition: all 0.3s ease;
+            position: relative;
+            display: block;
+            padding: 1rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+            transform: translateX(10px);
+        }
+
+        
+        @media (max-width: 768px) {
+            .nav-link {
+                font-size: 2rem;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .team-card:hover {
+                transform: translateY(-5px) scale(1.02);
+            }
+        }
+
+        
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        
+        .success-checkmark {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4ade80;
+            position: relative;
+            animation: checkmark-appear 0.5s ease;
+        }
+
+        .success-checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+        }
+
+        @keyframes checkmark-appear {
+            0% { transform: scale(0) rotate(180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        
+        .visualizer-mode {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .visualizer-mode.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.2));
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .visualizer-mode:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="animated-bg"></div>
+    
+    
+    <div class="particle-container" id="particle-container"></div>
+    
+    
+    <canvas id="visualizer-canvas"></canvas>
+    
+    
+    <nav class="fixed top-0 w-full z-50 glass-effect">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                
+                <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <div class="w-4 h-4 bg-white rounded-sm"></div>
+                    </div>
+                    <h1 class="text-xl font-semibold gradient-text">Resonance</h1>
+                </div>
+
+               
+                <div class="ml-auto flex items-center space-x-4">
+                    <a href="#pricing" class="btn-gradient ripple">Get Started</a>
+                    <button id="nav-toggle" class="glass-effect rounded-lg p-2 w-10 h-10 flex flex-col justify-center items-center space-y-1 hover:bg-white hover:bg-opacity-10 transition-all duration-300">
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                        <div class="hamburger w-4 h-0.5 bg-white transition-all duration-300"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+  
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 opacity-0 invisible transition-all duration-300"></div>
+
+    
+    <div id="nav-menu" class="fixed top-0 right-0 w-[500px] h-full bg-gradient-to-b from-neutral-100 to-neutral-300 z-50 transform translate-x-full transition-transform duration-400 ease-out">
+        <div class="p-6">
+            <button id="nav-close" class="absolute top-4 right-4 glass-effect rounded px-3 py-1 text-sm hover:bg-black hover:bg-opacity-20 transition-all duration-300">
+                CLOSE 
+            </button>
+
+            <ul class="mt-16 space-y-6">
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="about.html" class="nav-link">About Us</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="#visualizer" class="nav-link">Studio</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="#features" class="nav-link">Features</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="#team" class="nav-link">Artists</a>
+                </li>
+                <li class="nav-item opacity-0 transform translate-x-8 transition-all duration-300">
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    
+    <section id="home" class="min-h-screen flex items-center justify-center relative">
+        <div class="text-center max-w-6xl mx-auto px-6 relative z-10">
+            <h2 class="text-6xl md:text-8xl font-light mb-8 scroll-reveal">
+                Transform
+                <br>
+                <span class="font-bold gradient-text">Sound into Art</span>
+            </h2>
+            <p class="text-xl md:text-2xl text-gray-300 mb-12 scroll-reveal font-light max-w-3xl mx-auto">
+                Experience the future of audio visualization with our revolutionary real-time rendering technology that brings your music to life.
+            </p>
+            <div class="flex flex-col md:flex-row gap-6 justify-center items-center scroll-reveal">
+                <button id="start-visualizer" class="btn-gradient ripple magic-hover text-lg px-10 py-4">
+                    🎵 Start Creating
+                </button>
+                <button class="btn-outline ripple magic-hover text-lg px-10 py-4">
+                    🎬 Watch Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+   
+    <section id="visualizer" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h3 class="text-5xl font-light mb-6 scroll-reveal gradient-text">Visualization Studio</h3>
+                <p class="text-xl text-gray-300 scroll-reveal">Choose your visualization style and watch magic happen</p>
+            </div>
+            
+            
+            <div class="grid md:grid-cols-3 gap-8 mb-20">
+                <div class="visualizer-mode scroll-reveal active magic-hover" data-mode="spectrum">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 17h2v4H3v-4zm4-4h2v8H7v-8zm4-4h2v12h-2V9zm4-4h2v16h-2V5zm4-4h2v20h-2V1z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Frequency Spectrum</h4>
+                    <p class="text-gray-400">Dynamic frequency analysis with stunning visual effects</p>
+                </div>
+                
+                <div class="visualizer-mode scroll-reveal magic-hover" data-mode="particles">
+                    <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Particle Galaxy</h4>
+                    <p class="text-gray-400">Immersive 3D particle systems that dance to your music</p>
+                </div>
+                
+                <div class="visualizer-mode scroll-reveal magic-hover" data-mode="waveform">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.58 4.08L6.15 2.65C3.75 4.48 2.17 7.3 2.03 10.5h2c.15-2.65 1.51-4.97 3.55-6.42zM19.97 10.5h2c-.15-3.2-1.73-6.02-4.12-7.85l-1.42 1.43c2.02 1.45 3.39 3.77 3.54 6.42z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Wave Morphing</h4>
+                    <p class="text-gray-400">Fluid waveforms that transform in real-time</p>
+                </div>
+            </div>
+            
+           
+            <div class="max-w-3xl mx-auto scroll-reveal">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h4 class="text-2xl font-semibold mb-4">Drop Your Audio Here</h4>
+                    <p class="text-gray-300 mb-6 text-lg">Drag and drop your audio file or click to browse</p>
+                    <input type="file" id="audio-file" accept="audio/*" class="hidden">
+                    <button class="btn-gradient ripple magic-hover text-lg px-8 py-3" onclick="document.getElementById('audio-file').click()">
+                        📁 Choose File
+                    </button>
+                    <p class="text-sm text-gray-400 mt-4">Supports MP3, WAV, FLAC, M4A and more • Max 50MB</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="features" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h3 class="text-5xl font-light mb-6 scroll-reveal gradient-text">Powerful Features</h3>
+                <p class="text-xl text-gray-300 scroll-reveal">Professional-grade tools for stunning visualizations</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="feature-card scroll-reveal magic-hover">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">8K Quality</h4>
+                    <p class="text-gray-400">Ultra-high resolution rendering for professional use</p>
+                </div>
+                
+                <div class="feature-card scroll-reveal magic-hover">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Real-time</h4>
+                    <p class="text-gray-400">Zero latency processing with 60fps smooth rendering</p>
+                </div>
+                
+                <div class="feature-card scroll-reveal magic-hover">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">AI Analytics</h4>
+                    <p class="text-gray-400">Smart audio analysis with machine learning insights</p>
+                </div>
+                
+                <div class="feature-card scroll-reveal magic-hover">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Export Formats</h4>
+                    <p class="text-gray-400">MP4, WebM, GIF and more with custom presets</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="team" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h3 class="text-5xl font-light mb-6 scroll-reveal gradient-text">Our Creative Team</h3>
+                <p class="text-xl text-gray-300 scroll-reveal">The visionaries behind Resonance</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <div class="team-card scroll-reveal magic-hover" data-member="devika">
+                    <div class="relative">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%23667eea'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='24' font-weight='bold'%3EDG%3C/text%3E%3C/svg%3E" alt="Devika Ghadi" class="avatar">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-0 transition-opacity duration-300 hover:opacity-20"></div>
+                    </div>
+                    <h4 class="text-2xl font-semibold mb-2 gradient-text">Devika Ghadi</h4>
+                    <p class="text-lg text-purple-400 mb-4 font-medium">Creative Director</p>
+                    <p class="text-gray-300 leading-relaxed">
+                        Creative visionary who loves to read and brings fresh perspectives through brainrot memes. Devika transforms complex ideas into stunning visual experiences.
+                    </p>
+                </div>
+                
+                <div class="team-card scroll-reveal magic-hover" data-member="tisha">
+                    <div class="relative">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%23764ba2'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='24' font-weight='bold'%3ETG%3C/text%3E%3C/svg%3E" alt="Tisha Gogia" class="avatar">
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full opacity-0 transition-opacity duration-300 hover:opacity-20"></div>
+                    </div>
+                    <h4 class="text-2xl font-semibold mb-2 gradient-text">Tisha Gogia</h4>
+                    <p class="text-lg text-pink-400 mb-4 font-medium">Lead Developer</p>
+                    <p class="text-gray-300 leading-relaxed">
+                        Sociable tech enthusiast who loves discussing various topics and sharing brainrot content. Tisha bridges the gap between creativity and technology.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="pricing" class="py-20 relative">
+        <div class="container mx-auto px-6 text-center">
+            <div class="text-center mb-20">
+                <h3 class="text-5xl font-light mb-6 scroll-reveal gradient-text">Simple Pricing</h3>
+                <p class="text-xl text-gray-300 scroll-reveal">Start creating today with our flexible plans</p>
+            </div>
+            
+            <div class="max-w-md mx-auto">
+                <div class="feature-card scroll-reveal magic-hover relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                            🚀 Most Popular
+                        </span>
+                    </div>
+                    
+                    <div class="pt-4 mb-8">
+                        <h4 class="text-3xl font-semibold mb-4 gradient-text">Professional</h4>
+                        <div class="text-6xl font-light mb-2">$19<span class="text-2xl text-gray-400">/month</span></div>
+                        <p class="text-gray-300">Everything you need for professional audio visualization</p>
+                    </div>
+                    
+                    <ul class="text-left space-y-4 mb-10 text-lg">
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            Unlimited audio uploads
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            8K video export
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            Advanced visualizations
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            Commercial license
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                            </div>
+                            Priority support & API access
+                        </li>
+                    </ul>
+                    
+                    <button class="btn-gradient ripple magic-hover w-full py-4 text-lg font-semibold mb-4">
+                        🎉 Start Free Trial
+                    </button>
+                    <p class="text-sm text-gray-400">14-day free trial • No credit card required • Cancel anytime</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <div id="audio-controls" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 glass-effect rounded-full px-8 py-4 opacity-0 pointer-events-none transition-all duration-300 min-w-[300px]">
+        <div class="flex items-center space-x-6">
+            <button id="play-pause" class="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center ripple magic-hover">
+                <svg id="play-icon" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+            <div class="flex-1">
+                <p id="track-name" class="font-semibold text-white">No track loaded</p>
+                <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full w-0 transition-all duration-300" id="progress-bar"></div>
+                </div>
+            </div>
+            <button id="stop-visualizer" class="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1 rounded-full hover:bg-white hover:bg-opacity-10">
+                Stop
+            </button>
+        </div>
+    </div>
+
+    
+    <div id="success-toast" class="fixed top-20 right-6 glass-effect rounded-lg px-6 py-4 transform translate-x-full transition-all duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="success-checkmark"></div>
+            <span class="text-white font-medium">File uploaded successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            function createParticles() {
+                const container = document.getElementById('particle-container');
+                
+                function addParticle() {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * window.innerWidth + 'px';
+                    particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    
+                    const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 20000);
+                }
+                
+                setInterval(addParticle, 800);
+            }
+            
+            createParticles();
+            
+            
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('revealed');
+                        }, index * 100);
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+            
+            
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            const navClose = document.getElementById('nav-close');
+            const overlay = document.getElementById('overlay');
+            const hamburgerBars = document.querySelectorAll('.hamburger');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            function openMenu() {
+                overlay.classList.remove('opacity-0', 'invisible');
+                overlay.classList.add('opacity-100', 'visible');
+                navMenu.classList.remove('translate-x-full');
+                navMenu.classList.add('translate-x-0');
+                
+                hamburgerBars[0].style.transform = 'rotate(45deg) translate(3px, 3px)';
+                hamburgerBars[1].style.opacity = '0';
+                hamburgerBars[2].style.transform = 'rotate(-45deg) translate(3px, -3px)';
+                
+                setTimeout(() => {
+                    navItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('show');
+                            item.style.opacity = '1';
+                            item.style.transform = 'translateX(0)';
+                        }, index * 100);
+                    });
+                }, 200);
+                
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeMenu() {
+                overlay.classList.remove('opacity-100', 'visible');
+                overlay.classList.add('opacity-0', 'invisible');
+                navMenu.classList.remove('translate-x-0');
+                navMenu.classList.add('translate-x-full');
+                
+                hamburgerBars[0].style.transform = 'rotate(0deg) translate(0px, 0px)';
+                hamburgerBars[1].style.opacity = '1';
+                hamburgerBars[2].style.transform = 'rotate(0deg) translate(0px, 0px)';
+                
+                navItems.forEach(item => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(50px)';
+                });
+                
+                document.body.style.overflow = 'auto';
+            }
+            
+            navToggle.addEventListener('click', openMenu);
+            navClose.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+            
+            
+            function createRipple(e) {
+                const button = e.currentTarget;
+                const ripple = document.createElement('span');
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+            
+            document.querySelectorAll('.ripple').forEach(button => {
+                button.addEventListener('click', createRipple);
+            });
+            
+            
+            document.querySelectorAll('.visualizer-mode').forEach(mode => {
+                mode.addEventListener('click', function() {
+                    document.querySelectorAll('.visualizer-mode').forEach(m => m.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            
+            const uploadZone = document.getElementById('upload-zone');
+            const audioFile = document.getElementById('audio-file');
+            const audioControls = document.getElementById('audio-controls');
+            const successToast = document.getElementById('success-toast');
+            
+            function showSuccessToast() {
+                successToast.classList.remove('translate-x-full');
+                successToast.classList.add('translate-x-0');
+                
+                setTimeout(() => {
+                    successToast.classList.remove('translate-x-0');
+                    successToast.classList.add('translate-x-full');
+                }, 3000);
+            }
+            
+            function handleFileUpload(file) {
+                if (file && file.type.startsWith('audio/')) {
+                    document.getElementById('track-name').textContent = file.name;
+                    audioControls.classList.remove('opacity-0', 'pointer-events-none');
+                    audioControls.classList.add('opacity-100', 'pointer-events-auto');
+                    
+                   
+                    document.getElementById('visualizer-canvas').classList.add('active');
+                    
+                    showSuccessToast();
+                    startVisualization();
+                }
+            }
+            
+            
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+            
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+            
+            audioFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+            
+            
+            function startVisualization() {
+                const canvas = document.getElementById('visualizer-canvas');
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+                
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                
+                
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+                const colors = [];
+                
+                for (let i = 0; i < 5000; i++) {
+                    positions.push((Math.random() - 0.5) * 2000);
+                    positions.push((Math.random() - 0.5) * 2000);
+                    positions.push((Math.random() - 0.5) * 2000);
+                    
+                    colors.push(Math.random());
+                    colors.push(Math.random());
+                    colors.push(Math.random());
+                }
+                
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    size: 3,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const particles = new THREE.Points(geometry, material);
+                scene.add(particles);
+                
+                camera.position.z = 1000;
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    
+                    particles.rotation.x += 0.001;
+                    particles.rotation.y += 0.002;
+                    
+                    
+                    const time = Date.now() * 0.001;
+                    particles.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
+                    
+                    renderer.render(scene, camera);
+                }
+                
+                animate();
+                
+                
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+            
+           
+            document.getElementById('play-pause').addEventListener('click', function() {
+                const playIcon = document.getElementById('play-icon');
+                const isPlaying = playIcon.innerHTML.includes('M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+                
+                if (isPlaying) {
+                    playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                } else {
+                    playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                }
+            });
+            
+            document.getElementById('stop-visualizer').addEventListener('click', function() {
+                document.getElementById('visualizer-canvas').classList.remove('active');
+                audioControls.classList.add('opacity-0', 'pointer-events-none');
+                audioControls.classList.remove('opacity-100', 'pointer-events-auto');
+            });
+            
+            
+            document.getElementById('start-visualizer').addEventListener('click', function() {
+                document.getElementById('visualizer').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
